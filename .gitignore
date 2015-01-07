@@ -1,3 +1,11 @@
+# User data on the website
+data
+
+# Database files
+*.sqlite
+*.sqlite3
+*.db
+
 # Logs
 logs
 *.log

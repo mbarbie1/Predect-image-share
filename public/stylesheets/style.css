@@ -1,0 +1,67 @@
+.global { 
+	color: #114411;
+	width: 80%;
+	margin-left: auto;
+	margin-right: auto;
+}
+.header_1 { 
+	height: 50px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.main_1 { 
+	height: 90%;
+	margin-left: auto;
+	margin-right: auto;
+}
+.mainMenu_1 {
+	padding: 20px 30px;
+	background-color: #22cc22;
+}
+.mainMenuButton_1 , .mainMenuButton_2 {
+	padding: 10px 15px;
+	color: #eeffee;
+	background-color: #22cc22;
+	text-decoration: none;
+	font-size: 14;
+	border: none;
+	cursor: pointer;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}
+.mainMenuButton_1:hover, .mainMenuButton_1:focus {
+	background-color: #11ee11;
+}
+.mainMenuButton_2:hover, .mainMenuButton_2:focus {
+	background-color: #ee1111;
+}
+
+.menuButton_1 {
+	padding: 5px 10px;
+	color: #eeffee;
+	background-color: #22cc22;
+	text-decoration: none;
+	font-size: 12;
+	border: none;
+	cursor: pointer;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
+}
+.menuButton_1:hover, .menuButton_1:focus {
+	background-color: #11ee11;
+}
+
+h1, h2, h3 {
+	color: #11aa11;
+}
+
+// ORDERED LISTS
+
+ol.list1 {list-style-type:decimal}
+ol.list1 > li > ol {list-style-type:lower-alpha}
+ol.list1 > li > ol > li > ol {list-style-type:lower-roman}
+ol.list1 > li > ol > li > ol > li > ol {list-style-type:upper-alpha}
+ol.list1 > li > ol > li > ol > li > ol > li > ol {list-style-type:upper-roman}
+

@@ -1,0 +1,32 @@
+<div id="listDiv"></div>
+
+<div id="uploadDiv">
+	<h3>Upload an image stack (single file):</h3>
+	<div id="fileuploader">Upload</div>
+</div>
+<div id="uploadStatusDiv"></div>
+<div id="eventsmessage"></div>
+
+<script type="text/javascript">
+	$(document).ready( function()
+	{
+		$("#fileuploader").uploadFile(
+		{
+			url: "/upload",
+			allowedTypes: "tif,tiff,png,gif,jpg,jpeg,jp2,lsm,flex,czi,txt,xml",
+			fileName: "files",
+			dragDrop: false,
+			statusBarWidth: 300,
+			statusBarheight: 300,
+			dragdropWidth: 300,
+			maxFileSize: 1024*1024*500,
+ 			success: function(files,data,xhr) {
+				$('#listTable > tbody:last').append('<tr><td>'+JSON.stringify(data)+'</td><td>size</td></tr>');
+			},
+			error: function(files,data,xhr) {
+				$("#listDiv").html($("#eventsmessage").html()+"<br/>Error for: "+JSON.stringify(data));
+			}
+		});
+	});
+
+</script>

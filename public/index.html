@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Fake WebMicroscope: testing 3D fluorescent image handling</title>
+
+
+<!-- CSS: -->
+	<!-- styles needed by slider -->
+	<link rel="stylesheet" href="javascripts/external/jquery-ui-1.11.1/jquery-ui.css"/>
+	<!-- styles needed by jScrollPane -->
+	<link type="text/css" href="javascripts/external/jScrollPane-master/style/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+	<!-- my styles for jScrollPane -->
+	<STYLE type="text/css">
+		.scroll { margin:15px; width: 90%; height: 400px; overflow: auto; showArrows: true; autoReinitialise: true }
+		.slider { width: 25%; margin:15px;}
+		#viewerDiv { width: 50%; float:left; }
+	</STYLE>
+	<!-- styles needed by upload-file -->
+	<link href="javascripts/external/jquery-upload-file-master/css/myUploadfile.css" rel="stylesheet"/>
+	<!-- myStyle -->
+	<link href="stylesheets/style.css" rel="stylesheet"/>
+	<!-- Styles for MR.JSONTable -->
+	<link href="javascripts/external/mrjsontable/css/mrjsontable.css" rel="stylesheet" />
+
+
+<!-- JavaScript: -->
+	<script type="text/javascript" src="javascripts/external/jquery/jquery-1.11.1.js"></script>
+	<script type="text/javascript" src="javascripts/external/jquery-ui-1.11.1/jquery-ui.js"></script>
+	<!-- the mousewheel plugin - optional to provide mousewheel support -->
+	<script type="text/javascript" src="javascripts/external/jScrollPane-master/script/jquery.mousewheel.js"></script>
+	<!-- the jScrollPane script -->
+	<script type="text/javascript" src="javascripts/external/jScrollPane-master/script/jquery.jscrollpane.min.js"></script>
+	<!-- the upload-file script -->
+	<script type="text/javascript" src="javascripts/external/jquery-upload-file-master/js/jquery.uploadfile.min.js"></script>
+	<!-- <script src="https://rawgithub.com/hayageek/jquery-upload-file/master/js/jquery.uploadfile.min.js"></script> -->
+	<!-- MR.JSONTable -->
+	<script type="text/javascript" src="javascripts/external/mrjsontable/scripts/mrjsontable.js"></script>
+	<!-- OpenSeaDragonViewer -->
+	<script type="text/javascript" src="javascripts/external/openseadragon/openseadragon-bin-1.1.1/openseadragon.min.js"></script>
+
+</head>
+
+<body>
+
+	<div class="global">
+		<div class="header_1"></div>
+		<div class="main_1">
+			<div class="mainMenu_1">
+				<a id="homepage" href="home.html" class="mainMenuButton_1">Home</a>
+				<a href="dataManager.html" class="mainMenuButton_1">data-manager</a>
+				<a href="tableManager.html" class="mainMenuButton_1">table-manager</a>
+				<a href="viewer.html" class="mainMenuButton_1">Viewer</a>
+				<a href="openSeadragonViewer.html" class="mainMenuButton_2">OpenSeaDragonViewer</a>
+				<a href="data" class="mainMenuButton_2">Data</a>
+			</div>
+			<div class="page_1" id="loadPage"></div>
+		</div>
+	</div>
+
+	<script>
+		$( document ).ready( function(){
+			$('#loadPage').load( $('#homepage').attr('href') );
+		});
+
+		$( function(){
+			$('a.mainMenuButton_1').click(function(e){
+				e.preventDefault();
+				$('#loadPage').load( $(this).attr('href') );
+			});
+		});
+		
+		$( function(){
+			$('a.mainMenuButton_2').click(function(e){
+				e.preventDefault();
+				window.open( $(this).attr('href'));
+			});
+		});
+	</script>
+
+</body>
+</html>

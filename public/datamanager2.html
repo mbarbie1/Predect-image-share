@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>listing directory {directory}</title>
+    <style>{style}</style>
+
+<!-- CSS: -->
+	<!-- styles needed by slider -->
+	<link rel="stylesheet" href="../../javascripts/external/jquery-ui-1.11.1/jquery-ui.css"/>
+	<!-- styles needed by jScrollPane -->
+	<link type="text/css" href="../../javascripts/external/jScrollPane-master/style/jquery.jscrollpane.css" rel="stylesheet" media="all" />
+	<!-- my styles for jScrollPane -->
+	<STYLE type="text/css">
+		.scroll { margin:15px; width: 90%; height: 400px; overflow: auto; showArrows: true; autoReinitialise: true }
+		.slider { width: 25%; margin:15px;}
+		#viewerDiv { width: 50%; float:left; }
+	</STYLE>
+	<!-- styles needed by upload-file -->
+	<link href="../../javascripts/external/jquery-upload-file-master/css/myUploadfile.css" rel="stylesheet"/>
+	<!-- myStyle -->
+	<link href="../../stylesheets/style.css" rel="stylesheet"/>
+	<!-- Styles for MR.JSONTable -->
+	<link href="../../javascripts/external/mrjsontable/css/mrjsontable.css" rel="stylesheet" />
+
+
+<!-- JavaScript: -->
+	<script type="text/javascript" src="../../javascripts/external/jquery/jquery-1.11.1.js"></script>
+	<script type="text/javascript" src="../../javascripts/external/jquery-ui-1.11.1/jquery-ui.js"></script>
+	<!-- the mousewheel plugin - optional to provide mousewheel support -->
+	<script type="text/javascript" src="../../javascripts/external/jScrollPane-master/script/jquery.mousewheel.js"></script>
+	<!-- the jScrollPane script -->
+	<script type="text/javascript" src="../../javascripts/external/jScrollPane-master/script/jquery.jscrollpane.min.js"></script>
+	<!-- the upload-file script -->
+	<script type="text/javascript" src="../../javascripts/external/jquery-upload-file-master/js/jquery.uploadfile.min.js"></script>
+	<!-- <script src="https://rawgithub.com/hayageek/jquery-upload-file/master/js/jquery.uploadfile.min.js"></script> -->
+	<!-- MR.JSONTable -->
+	<script type="text/javascript" src="../../javascripts/external/mrjsontable/scripts/mrjsontable.js"></script>
+	<!-- OpenSeaDragonViewer -->
+	<script type="text/javascript" src="../../javascripts/external/openseadragon/openseadragon-bin-1.1.1/openseadragon.min.js"></script>
+
+    <script>
+      function $(id){
+        var el = 'string' == typeof id
+          ? document.getElementById(id)
+          : id;
+
+        el.on = function(event, fn){
+          if ('content loaded' == event) {
+            event = window.attachEvent ? "load" : "DOMContentLoaded";
+          }
+          el.addEventListener
+            ? el.addEventListener(event, fn, false)
+            : el.attachEvent("on" + event, fn);
+        };
+
+        el.all = function(selector){
+          return $(el.querySelectorAll(selector));
+        };
+
+        el.each = function(fn){
+          for (var i = 0, len = el.length; i < len; ++i) {
+            fn($(el[i]), i);
+          }
+        };
+
+        el.getClasses = function(){
+          return this.getAttribute('class').split(/\s+/);
+        };
+
+        el.addClass = function(name){
+          var classes = this.getAttribute('class');
+          el.setAttribute('class', classes
+            ? classes + ' ' + name
+            : name);
+        };
+
+        el.removeClass = function(name){
+          var classes = this.getClasses().filter(function(curr){
+            return curr != name;
+          });
+          this.setAttribute('class', classes.join(' '));
+        };
+
+        return el;
+      }
+
+      function search() {
+        var str = $('search').value
+          , links = $('files').all('a');
+
+        links.each(function(link){
+          var text = link.textContent;
+
+          if ('..' == text) return;
+          if (str.length && ~text.indexOf(str)) {
+            link.addClass('highlight');
+          } else {
+            link.removeClass('highlight');
+          }
+        });
+      }
+
+      $(window).on('content loaded', function(){
+        $('search').on('keyup', search);
+      });
+    </script>
+
+</head>
+
+<body class="directory">
+  
+  	<div class="global">
+		<div class="header_1"></div>
+		<div class="main_1">
+			<div class="mainMenu_1">
+				<a id="homepage" href="../../home.html" class="mainMenuButton_1">Home</a>
+				<a href="../../dataManager.html" class="mainMenuButton_1">data-manager</a>
+				<a href="../../tableManager.html" class="mainMenuButton_1">table-manager</a>
+				<a href="../../public/viewer.html" class="mainMenuButton_1">Viewer</a>
+				<a href="../../public/openSeadragonViewer.html" class="mainMenuButton_2">OpenSeaDragonViewer</a>
+			</div>
+			<div class="page_1" id="loadPage"></div>
+		</div>
+	</div>
+
+	<script>
+		$( document ).ready( function(){
+			$('#loadPage').load( $('#homepage').attr('href') );
+		});
+
+		$( function(){
+			$('a.mainMenuButton_1').click(function(e){
+				e.preventDefault();
+				$('#loadPage').load( $(this).attr('href') );
+			});
+		});
+	</script>
+  
+	<div id="listDiv"></div>
+
+	<div id="uploadDiv">
+		<h3>Upload an image stack (single file):</h3>
+		<div id="fileuploader">Upload</div>
+	</div>
+	<div id="uploadStatusDiv"></div>
+	<div id="eventsmessage"></div>
+
+	<script type="text/javascript">
+		$(document).ready( function()
+		{
+			$("#fileuploader").uploadFile(
+			{
+				url: "/upload",
+				allowedTypes: "tif,tiff,png,gif,jpg,jpeg,jp2,lsm,flex,czi,txt,xml",
+				fileName: "files",
+				dragDrop: false,
+				statusBarWidth: 300,
+				statusBarheight: 300,
+				dragdropWidth: 300,
+				maxFileSize: 1024*1024*500,
+				success: function(files,data,xhr) {
+					$('#listTable > tbody:last').append('<tr><td>'+JSON.stringify(data)+'</td><td>size</td></tr>');
+				},
+				error: function(files,data,xhr) {
+					$("#listDiv").html($("#eventsmessage").html()+"<br/>Error for: "+JSON.stringify(data));
+				}
+			});
+		});
+
+	</script>
+
+  
+    <input id="search" type="text" placeholder="Search" autocomplete="off" />
+    <div id="wrapper">
+      <h1>{linked-path}</h1>
+      {files}
+    </div>
+	
+	
+  </body>
+</html>

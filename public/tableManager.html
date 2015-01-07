@@ -1,0 +1,44 @@
+<div id="tablediv"></div>
+
+<script type="text/javascript">
+    $(function () {
+        $("#tablediv").mrjsontable({
+            columns: [
+                {
+                    heading: "Age",
+                    data: "json_data_field_name", // see how this links to the json object further down
+                    type: "int", // can be string, int, float, datetime
+                    sortable: true, // is the field sortable (optional defaults to false)
+                    starthidden: false // should the field be hidden when loaded (optional defaults to false)
+                },
+                {
+                    heading: "Name",
+                    data: "name", // see how this links to the json object further down
+                    type: "string", // can be string, int, float, datetime
+                    sortable: true, // is the field sortable (optional defaults to false)
+                    starthidden: false // should the field be hidden when loaded (optional defaults to false)
+                }
+            ],
+            data: [
+                {
+                    "json_data_field_name": 9, //in this example the first column is looking for this field specified in the data property,
+                    "name": "Chris" // in this example the second column is looking for this value
+                },
+                {
+                    "json_data_field_name": 4, //in this example the first column is looking for this field specified in the data property,
+                    "name": "Mcihael" // in this example the second column is looking for this value
+                },
+                {
+                    "json_data_field_name": 34345, //in this example the first column is looking for this field specified in the data property,
+                    "name": "John" // in this example the second column is looking for this value
+                },
+                {
+                    "json_data_field_name": 10, //in this example the first column is looking for this field specified in the data property,
+                    "name": "Jef" // in this example the second column is looking for this value
+                }
+            ]
+        });
+    });
+
+
+</script>

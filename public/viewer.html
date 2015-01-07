@@ -1,0 +1,260 @@
+<!-- ------------------------------------------------------------------- -->
+<!------------------------------ HTML ------------------------------------->
+<!-- ------------------------------------------------------------------- -->
+
+<div id="viewerDiv">
+	<div id="imageTitle"></div>
+	<div class="scroll" id="scrollDiv">
+		<div id="imageDiv"></div>
+	</div>
+	<div>Z:	<span id="imageIndexZ">1</span><div float="right" class="slider" id="sliderZ"></div></div>
+	<div>Channel:	<span id="imageIndexChannel">1</span><div float="right" class="slider" id="sliderChannel"></div></div>
+	<div>Zoom:	<span id="imageZoomFactor">1</span><div float="right" class="slider" id="sliderZoom"></div></div>
+</div>
+
+<div id="algoDiv">
+	<h3>Select an algorithm:</h3>
+	<form>
+	<select name="selectform" onchange="selectAlgo( this.value )">
+	<option value="">Select an algorithm:</option>
+	<option value="runSimple">Testing: fake algorithm that only logs</option>
+	<option value="splitImage">split an uploaded multipage image</option>
+	<option value="algoSegmentationThreshold">Segmentation: Threshold</option>
+	<option value="algoSegmentationHessianThreshold">Segmentation: Hessian based threshold</option>
+	<option value="algoSegmentationErrorEstimation">Segmentation: Ground truth error</option>
+	<option value="algoFeatureObjectIntensity">Feature extraction: object intensity statistics</option>
+	</select>
+	</form>
+	<br>
+
+	<p>Parameters of the algorithm:</p>
+	<form name="parameters" id="ajaxform" action="" method="POST">
+		<div id="algoParameters"><b>No algorithm selected.</b></div>
+	</form>
+	<button name="submitButton" id="submitButton">Submit</button>
+	<p>Status: <div id="statusDiv">Not running</div></p>
+</div>
+
+
+<!-- ------------------------------------------------------------------- -->
+<!------------------------------ JAVASCRIPT ------------------------------->
+<!-- ------------------------------------------------------------------- -->
+
+<script>
+	function selectAlgo( index ) {
+		if (index == "") {
+			document.getElementById("algoParameters").textContent = "No algorithm selected.";
+		} else {
+			document.getElementById("ajaxform").setAttribute("action", index + ".php");
+			var actionURL = document.getElementById("ajaxform").getAttribute("action");
+			$("#algoParameters").load( index + ".html", function(responseTxt,statusTxt,xhr){
+				if(statusTxt=="error") {
+					alert("Error: Algorithm parameter description file (" + index + ".html) could not be loaded. Error details: " + xhr.status + ": "+xhr.statusText);
+					document.getElementById("algoParameters").textContent = "No valid algorithm selected.";
+				}
+			});
+		}
+	}
+
+	$("#ajaxform").submit( function(e) {
+
+		e.preventDefault();
+
+		var postData = $(this).serializeArray();
+		var formURL = $(this).attr("action");
+		$('#statusDiv').text("Algorithm running"); 
+		$.ajax(
+			{
+				url : formURL,
+				type: "POST",
+				data : postData,
+				async: true,
+				cache: false,
+				success: function(data, textStatus, jqXHR) {
+					$('#statusDiv').text("Succesfull");
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					$('#statusDiv').text("Error");
+				}
+			}
+		);
+	});
+
+	$(document).ready(function () {
+		$("#submitButton").click(function () {
+			$("#ajaxform").submit(); //Submit  the FORM
+		});
+	});
+
+</script>
+	
+<script>
+	var indZ = 1;
+	var indC = 1;
+	var nChannels = 3;
+	var nX = 1;
+	var nY = 1;
+	var nZ = 10;
+	var title = "Image title";
+	var imageSliceFiles;
+	var zoom = 0.25;
+	var source = "";
+
+	// create a 2D-array
+	function Create2DArray(rows,columns) {
+		var x = new Array(rows);
+		for (var i = 0; i < rows; i++) {
+			x[i] = new Array(columns);
+		}
+		return x;
+	}
+
+	function repeat (string, times) {
+		var result = ''
+		while (times > 0) {
+			if (times & 1) result += string
+			times >>= 1
+			string += string
+		}
+		return result
+	}
+	
+	// initiate the image stack
+	function initStack() {
+		//getFileList("data/images/original/image_hanneke");
+		nZ = 31; // The number of columns
+		nChannels = 2; // The number of rows
+		title = "Image title";
+		imageFileList = Create2DArray(nChannels,nZ);
+		sourceDir = "data/images/original/hanneke/";
+		var zeroPadC = '';
+		var zeroPadZ = '';
+		var nPadZ = 2;
+		var nPadC = 1;
+		for (var ci = 1; ci <= nChannels ; ci++) {
+			zeroPadC = ( repeat ('0', nPadC) + ci).slice(-nPadC);
+			console.log(zeroPadC);
+			for (var zi = 1; zi <= nZ ; zi++) {
+				zeroPadZ = (repeat('0', nPadZ) + zi).slice(-nPadZ);
+				console.log(zeroPadZ);
+				imageFileList[ci-1][zi-1] = sourceDir + "hanneke_C" + zeroPadC + "_Z" + zeroPadZ + ".png";
+				console.log(imageFileList[ci-1][zi-1]);
+			}
+		}
+	}
+
+	function getFileList(dir) {
+		getdata = { folder: "data/images/original/image_hanneke" };
+		$.ajax({
+			type: "GET",
+			url: "getImageList.php",
+			data: getdata,
+			cache: false,
+			succes: function( result ) {
+					alert("succes");
+					$("#listDiv").html(result)
+				},
+			error: function( result ) {
+					alert("error");
+				}
+		});
+	}
+
+	function getIndexZ() {
+		return $("#sliderZ").slider("value");
+	}
+
+	function getSliceFile() {
+		return imageFileList[indC-1][indZ-1];
+	}
+	
+	function getZoom() {
+		return $("#sliderZoom").slider("value");
+	}
+	
+	function getIndexChannel() {
+		return $("#sliderChannel").slider("value");
+	}
+	
+	function updateIndices() {
+		indZ = getIndexZ();
+		indC = getIndexChannel();
+	}
+
+	function loadSlice() {
+		updateIndices();
+		showSlice();
+	}
+	
+	// Initializes the image stack
+	$(function() {
+		initStack();
+	});
+	
+	//$(function() {
+	//	getFileList("data");
+	//	alert("getFileList");
+	//});
+	
+	$(function() {
+	
+		$( "#sliderZoom" ).slider({
+		value: 1,
+		min: 0.25,
+		max: 4,
+		step: 0.25,
+		create: function( event, ui ) {
+				showSlice();
+			},
+		slide: function( event, ui ) {
+				$("#imageZoomFactor").text(ui.value);
+			},
+		change: function( event, ui ) {
+				$("#imageZoomFactor").text(ui.value);
+				loadSlice();
+			}
+		});
+
+		$( "#sliderZ" ).slider({
+		value: 1,
+		min: 1,
+		max: nZ,
+		step: 1,
+		slide: function( event, ui ) {
+				$("#imageIndexZ").text(ui.value);
+				indZ = ui.value;
+				loadSlice();
+			},
+		change: function( event, ui ) {
+				$("#imageIndexZ").text(ui.value);
+				indZ = ui.value;
+				loadSlice();
+			}
+		});
+
+		$( "#sliderChannel" ).slider({
+		value: 1,
+		min: 1,
+		max: nChannels,
+		step: 1,
+		slide: function( event, ui ) {
+				$("#imageIndexChannel").text(ui.value);
+				indC = ui.value;
+				loadSlice();
+			},
+		change: function( event, ui ) {
+				$("#imageIndexChannel").text(ui.value);
+				indC = ui.value;
+				loadSlice();
+			}
+		});
+	});
+
+	function showSlice() {
+		var elem = document.createElement("img");
+		elem.src = 'getSlice.php?zoom='+getZoom()+'&file=' + getSliceFile();
+		document.getElementById("imageDiv").innerHTML = '';
+		document.getElementById("imageDiv").appendChild(elem);
+	}
+
+</script>

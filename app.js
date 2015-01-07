@@ -37,6 +37,13 @@ app.use('/', routes);
 // Serve URLs like /ftp/thing as public/ftp/thing
 app.use( '/data/', serveIndex('./data', {'icons': true, 'view': 'details','stylesheet':'./public/stylesheets/serve-index.css', 'template':'./public/dataManagerTemplate.html' } ) );
 
+// Dirty hack to serve pages which start with a random url starting with 'data/' and containing /public/: Chop of the first part before '/public/'
+app.use( '/data/', function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next();
+});
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

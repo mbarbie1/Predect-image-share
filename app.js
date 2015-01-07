@@ -25,7 +25,8 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public', express.static(path.join(__dirname, 'public')));
 //app.use( busboy( { immediate: true } ) ); 
 app.use( busboy( { immediate: false } ) ); 
 
@@ -34,8 +35,7 @@ app.use( busboy( { immediate: false } ) );
 //
 app.use('/', routes);
 // Serve URLs like /ftp/thing as public/ftp/thing
-app.use( '/data/', serveIndex('./data', {'icons': true, 'view': 'details','stylesheet':'./public/stylesheets/serve-index.css', 'template':'./public/datamanager2.html' } ) );
-app.use('/users', users);
+app.use( '/data/', serveIndex('./data', {'icons': true, 'view': 'details','stylesheet':'./public/stylesheets/serve-index.css', 'template':'./public/dataManagerTemplate.html' } ) );
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -5,8 +5,23 @@ var fs = require('fs-extra');
 var router = express.Router();
 //var base = process.env.PWD;
 var base = path.resolve('.');
-var uploadImageFolder = path.join( base, './data/images/original');
-var uploadDataFolder = path.join( base, './data');
+var dataCommand = 'data'
+	, downloadCommand = 'download'
+	, uploadCommand = 'upload'
+	, createDirCommand = 'createDir'
+	, deleteCommand = 'delete'
+	, showFileCommand = 'showText'
+	, viewImageCommand = 'view';
+var normalizeUrl = require('normalizeurl');
+var joinURI = function( pathA, pathB ) {
+	return [pathA.replace(/^\/|\/$/g,""), pathB.replace(/^\/|\/$/g,"")].join("/");
+}
+	
+var imageUrl = path.join(dataCommand, 'images/original');
+var uploadImageFolder = path.join( base, imageUrl);
+var uploadDataFolder = path.join( base, dataCommand);
+//
+var fb = require('../middleware/fileBrowser.js')( dataCommand, {'icons': true, 'view': 'details','stylesheet':'./middleware/public/style.css' } );
 
 // route middleware that will happen on every request: here we log the requests happening
 router.use(function(req, res, next) {
@@ -20,10 +35,10 @@ router.use(function(req, res, next) {
 });
 
 /* GET home page. */
-router.get('/', function(req, res) {
-	console.log('GET /');
-	res.render('index', { title: 'Express' });
-});
+//router.get('/', function(req, res) {
+//	console.log('GET /');
+//	res.render('index', { title: 'Express' });
+//});
 
 /* GET image download file. */
 router.get('/download', function(req, res) {
@@ -32,35 +47,59 @@ router.get('/download', function(req, res) {
 	res.download(file);
 });
 
+/* USE delete file/folder. */
+router.use('/delete', function(req, res, next) {
+
+ 	console.log('USE /delete/');
+	console.log('  The url = %j', req.url);
+	
+	var file = path.join( base, dataCommand, req.url );
+	var reqUrl = normalizeUrl(joinURI( joinURI(dataCommand, req.url), '..') );
+	console.log('reqUrl = ' + reqUrl);
+	if ( !fs.lstatSync( file ).isDirectory()  ) {
+		fs.unlink( file, function (err) {
+			if (err) throw err;
+			console.log('Deleted: ', file);
+			res.redirect( reqUrl );
+		});
+	} else {
+		fs.remove(file, function (err) {
+			if (err) throw err;
+			console.log('Deleted dir: ', file);
+			res.redirect( reqUrl );
+		});
+	}
+});
+
 /* USE image download file. */
 router.use('/data', function(req, res, next) {
-	console.log('USE /data/');
+
+ 	console.log('USE /data/');
 	console.log('  The url = %j', req.url);
-	var file = path.join( base, 'data/' + req.url );
+	
+	var file = path.join( base, dataCommand, req.url );
 	if ( !fs.lstatSync( file ).isDirectory()  ) {
 		console.log('Downloading: ', file);
 		res.download(file);
 	} else {
-		console.log('Not a file (serve-index will handle it): ', file);
+		console.log('Not a file, we cannot download it (serve-index will handle it): ', file);
 		next();
 	}
 });
 
-/* GET list files in image directory. */
-/* router.get('/listFiles', function(req, res) {
-	//	var file = path.join( uploadImageFolder, req.query.file );
-	//	res.download(file); // Set disposition and send it.
+router.use('/data', function(req, res, next) {
 
-	// WATCH THE UPLOAD DIRECTORY FOR CHANGES
-	fs.watch('somedir', function (event, filename) {
-	  console.log('event is: ' + event);
-	  if (filename) {
-		console.log('filename provided: ' + filename);
-	  } else {
-		console.log('filename not provided');
-	  }
+ 	console.log('USE /data/');
+	console.log('  The url = %j', req.url);
+	
+	fb.indexHtml( req, function (err, htmlFb) {
+		if (err) {
+			res.render('error', { 'error': err });
+		} else {
+			res.render('data', { 'htmlFb': htmlFb });
+		}
 	});
-}); */
+});
 
 /* POST file to upload page. */
 router.post('/upload', function(req, res){
